@@ -1,7 +1,7 @@
 /**
  * The vision
  * Junming He
- * use left mouse buttom to interact 
+ * use left mouse button to interact 
  */
 
 "use strict";

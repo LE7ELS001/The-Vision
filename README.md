@@ -1,12 +1,12 @@
-# Template p5 Project
+# The Vision
 
-Junming He
+Created by Junming He
 
-[View this project online](https://le7els001.github.io/CART253/)
+[View this project online](https://le7els001.github.io/The-Vision/)
 
 ## Description
 
-use the mouse left buttom to change the color and size
+The Vision is the work of the CART 253 Art Jam. This project uses a P5.js template. In the project, you can use the left mouse button to change the color and size of the lris. 
 
 ## Credits
 
