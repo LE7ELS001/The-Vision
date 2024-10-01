@@ -143,15 +143,30 @@ let eyeLashes = {
     R: 0,
     G: 0,
     B: 0,
+
     upperX_offset: -8,
     upperY_offset: -15,
     lowerX_offset: -10,
     lowerY_offset: 10,
+
     upperDivideNumber: 1 / 50,
     lowerDivideNumber: 1 / 25,
+
     AnimationOrNot: undefined,
+
     upperAnimationDivide: 50,
     lowerAnimationDivide: 25,
+
+    upperGrowSpeedX: -0.5,
+    upperGrowSpeedY: -1.2,
+    lowerGrowSpeedX: -0.5,
+    lowerGrowSpeedY: 0.5,
+
+    upperVelocityX: 0,
+    upperVelocityY: 0,
+    lowerVelocityX: 0,
+    lowerVelocityY: 0
+
 
 }
 
@@ -201,6 +216,23 @@ let edgeData = {
     y2: undefined
 }
 
+/*
+ *array to storage the bezierPoint
+ */
+
+//only collect once
+let collectPoint = undefined;
+
+//upper
+let upperArrayX = [];
+let upperArrayY = [];
+
+//lower
+let lowerArrayX = [];
+let lowerArrayY = [];
+
+
+
 //map
 let colorMix = 0;
 
@@ -225,6 +257,9 @@ function setup() {
     //eyealshes animation default statement 
     eyeLashes.AnimationOrNot = false;
 
+    //collectPoints
+    collectPoint = true;
+
 }
 
 
@@ -235,6 +270,31 @@ function draw() {
 
     //map()
     colorMix = map(mouseX, 0, width, -10, 50);
+
+
+    //only happen once
+    if (collectPoint) {
+
+        //collect all the upper eyelashes point(x,y) should be 50
+        for (let i = 0; i < 1; i += eyeLashes.upperDivideNumber) {
+
+            let upperTmpX = bezierPoint(upperEyelid.x1, upperEyelid.x2, upperEyelid.x3, upperEyelid.x4, i);
+            let upperTmpY = bezierPoint(upperEyelid.y1, upperEyelid.y2, upperEyelid.y3, upperEyelid.y4, i);
+            upperArrayX.push(upperTmpX);
+            upperArrayY.push(upperTmpY);
+        }
+
+
+        //collect all the lower eyelashes point(x,y) should be 25 
+        for (let i = 0; i < 1; i += eyeLashes.lowerDivideNumber) {
+            let lowerTmpX = bezierPoint(lowerEyelid.x1, lowerEyelid.x2, lowerEyelid.x3, lowerEyelid.x4, i);
+            let lowerTmpY = bezierPoint(lowerEyelid.y1, lowerEyelid.y2, lowerEyelid.y3, lowerEyelid.y4, i);
+            lowerArrayX.push(lowerTmpX);
+            lowerArrayY.push(lowerTmpY);
+        }
+
+        collectPoint = false;
+    }
 
 
 
@@ -497,39 +557,68 @@ function draw() {
             }
             pop();
         }
+
         else {
 
 
-            let upperXGrowingSpeed = eyeLashes.upperX_offset / eyeLashes.upperAnimationDivide;
-            let upperYGrowingSpeed = eyeLashes.upperY_offset / eyeLashes.upperAnimationDivide;
-            let lowerXGrowingSpeed = eyeLashes.lowerX_offset / eyeLashes.lowerAnimationDivide;
-            let lowerYGrowingSpeed = eyeLashes.lowerY_offset / eyeLashes.lowerAnimationDivide;
+            for (let i = 0; i <= eyeLashes.upperAnimationDivide; i++) {
 
-            push();
-            stroke(eyeLashes.R, eyeLashes.G, eyeLashes.B);
-            strokeWeight(eyeLashes.size);
 
-            //upper eyelashes point (x,y)
-            for (let i = 0; i < 1; i += eyeLashes.upperDivideNumber) {
-
-                let upperTmpX = bezierPoint(upperEyelid.x1, upperEyelid.x2, upperEyelid.x3, upperEyelid.x4, i);
-                let upperTmpY = bezierPoint(upperEyelid.y1, upperEyelid.y2, upperEyelid.y3, upperEyelid.y4, i);
-
-                line(upperTmpX, upperTmpY, upperTmpX + upperXGrowingSpeed, upperTmpY + upperYGrowingSpeed);
+                push();
+                stroke(eyeLashes.R, eyeLashes.G, eyeLashes.B);
+                strokeWeight(eyeLashes.size);
+                line(upperArrayX[i], upperArrayY[i], upperArrayX[i] + eyeLashes.upperVelocityX, upperArrayY[i] + eyeLashes.upperVelocityY);
+                pop();
 
             }
 
-            for (let i = 0; i < 1; i += eyeLashes.lowerDivideNumber) {
+            for (let j = 0; j <= eyeLashes.lowerAnimationDivide; j++) {
 
-                let lowerTmpX = bezierPoint(lowerEyelid.x1, lowerEyelid.x2, lowerEyelid.x3, lowerEyelid.x4, i);
-                let lowerTmpY = bezierPoint(lowerEyelid.y1, lowerEyelid.y2, lowerEyelid.y3, lowerEyelid.y4, i);
-
-                line(lowerTmpX, lowerTmpY, lowerTmpX + lowerXGrowingSpeed, lowerTmpY + lowerYGrowingSpeed);
+                push();
+                stroke(eyeLashes.R, eyeLashes.G, eyeLashes.B);
+                strokeWeight(eyeLashes.size);
+                line(lowerArrayX[j], lowerArrayY[j], lowerArrayX[j] + eyeLashes.lowerVelocityX, lowerArrayY[j] + eyeLashes.lowerVelocityY);
+                pop();
             }
 
-            eyeLashes.AnimationOrNot = false;
 
+            eyeLashes.upperVelocityX = constrain(eyeLashes.upperVelocityX, eyeLashes.upperX_offset, 0);
+            eyeLashes.upperVelocityY = constrain(eyeLashes.upperVelocityY, eyeLashes.upperY_offset, 0);
+            eyeLashes.upperVelocityX += eyeLashes.upperGrowSpeedX;
+            eyeLashes.upperVelocityY += eyeLashes.upperGrowSpeedY;
+
+
+            eyeLashes.lowerVelocityX = constrain(eyeLashes.lowerVelocityX, eyeLashes.lowerX_offset, 0);
+            eyeLashes.lowerVelocityY = constrain(eyeLashes.lowerVelocityY, 0, eyeLashes.lowerY_offset);
+            eyeLashes.lowerVelocityX += eyeLashes.lowerGrowSpeedX;
+            eyeLashes.lowerVelocityY += eyeLashes.lowerGrowSpeedY;
+
+            //debug
+            // console.log("active true");
+            // console.log("-----upper-----");
+            // console.log(eyeLashes.upperVelocityX);
+            // console.log(eyeLashes.upperVelocityY);
+            // console.log("------lower----");
+            // console.log(eyeLashes.lowerVelocityX);
+            // console.log(eyeLashes.lowerVelocityY);
+
+
+
+            if (eyeLashes.upperVelocityX <= eyeLashes.upperX_offset && eyeLashes.upperVelocityY <= eyeLashes.upperY_offset && eyeLashes.lowerVelocityX <= eyeLashes.lowerVelocityX && eyeLashes.lowerVelocityY >= eyeLashes.lowerY_offset) {
+
+                eyeLashes.AnimationOrNot = false;
+                eyeLashes.upperVelocityX = 0;
+                eyeLashes.upperVelocityY = 0;
+                eyeLashes.lowerVelocityX = 0;
+                eyeLashes.lowerVelocityY = 0;
+
+                //debug
+                //console.log("active false");
+            }
         }
+
+
+
 
     }
 
@@ -698,10 +787,10 @@ function draw() {
     // bezier(lowerEyelid.x1, lowerEyelid.y1 - eyeLris.size / 2 - 25, lowerEyelid.x2, lowerEyelid.y2 - eyeLris.size / 2 - 7, lowerEyelid.x3, lowerEyelid.y3 - eyeLris.size / 2 - 5, lowerEyelid.x4, lowerEyelid.y4 - eyeLris.size / 2 - 10);
     // bezier(upperEyelid.x1, upperEyelid.y1 + eyeLris.size / 2 + 6, upperEyelid.x2, upperEyelid.y2 + eyeLris.size / 2 + 3, upperEyelid.x3, upperEyelid.y3 + eyeLris.size / 2 + 5, upperEyelid.x4, upperEyelid.y4 + eyeLris.size / 2 + 16);
     // pop();
-    console.log("------------------mouseY----------------");
-    console.log(mouseY);
-    console.log("------------------mouseX----------------");
-    console.log(mouseX);
+    // console.log("------------------mouseY----------------");
+    // console.log(mouseY);
+    // console.log("------------------mouseX----------------");
+    // console.log(mouseX);
 
 }
 
@@ -721,3 +810,4 @@ function mouseClicked() {
     }
 
 }
+
